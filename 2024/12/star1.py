@@ -22,7 +22,7 @@ def find_region(field: Field, non_empty: Point) -> List[Point]:
         new_points = []
 
         for point in region:
-            for neighbour in point.neighbours():
+            for neighbour in point.neighbours:
                 if neighbour in new_points or neighbour in region:
                     continue
 
@@ -45,7 +45,7 @@ def find_fence(field: Field, region: List[Point]) -> List[Point]:
     region_value = field[region[0]]
 
     for point in region:
-        for neighbour in point.neighbours():
+        for neighbour in point.neighbours:
             if field[neighbour] != region_value:
                 fence_cells.append(neighbour)
 

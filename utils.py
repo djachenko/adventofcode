@@ -43,6 +43,12 @@ class Direction(Enum):
         return None
 
     @staticmethod
+    def from_dx_dy(dx: int, dy: int) -> 'Direction':
+        for d in Direction:
+            if d.dx == dx and d.dy == dy:
+                return d
+
+    @staticmethod
     @lru_cache()
     def representations() -> List[str]:
         return [str(d) for d in Direction]
@@ -73,12 +79,13 @@ class Point:
         yield self.x
         yield self.y
 
-    def neighbours(self) -> Iterable['Point']:
-        for direction in Direction:
-            yield Point(self.x + direction.dx, self.y + direction.dy)
+    @property
+    @lru_cache()
+    def neighbours(self) -> List['Point']:
+        return [self + direction for direction in Direction]
 
     def is_neighbour_of(self, other: 'Point') -> bool:
-        return other in self.neighbours()
+        return other in self.neighbours
 
     def __repr__(self) -> str:
         return f"({self.x}, {self.y})"
@@ -94,8 +101,11 @@ class Point:
     def __mul__(self, factor: int) -> 'Point':
         return Point(self.x * factor, self.y * factor)
 
-    def __add__(self, other: 'Point') -> 'Point':
-        return Point(self.x + other.x, self.y + other.y)
+    def __add__(self, other) -> 'Point':
+        if isinstance(other, Point):
+            return Point(self.x + other.x, self.y + other.y)
+        elif isinstance(other, Direction):
+            return Point(self.x + other.dx, self.y + other.dy)
 
     @staticmethod
     def from_tuple(t: Tuple[int, int]) -> 'Point':
