@@ -100,7 +100,7 @@ def find_quine(program: List[int]) -> int:
     while a_candidates:
         a_candidate = a_candidates.pop(0)
 
-        for candidate in range(1 << 6):
+        for candidate in range(1 << 3):
             a = (a_candidate << 3) + candidate
 
             result = run_program(program, {
