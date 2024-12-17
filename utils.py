@@ -4,7 +4,7 @@ from functools import lru_cache
 
 from math import log10
 from pathlib import Path
-from typing import Tuple, Iterable, List, TypeVar, Callable
+from typing import Tuple, Iterable, List, TypeVar, Callable, Dict
 
 
 def split_int(a: int) -> (int, int):
@@ -37,7 +37,7 @@ class Direction(Enum):
     @staticmethod
     def parse(string: str):
         for direction in Direction:
-            if str(direction) == string:
+            if str(direction).lower() == string.lower():
                 return direction
 
         return None
@@ -69,6 +69,25 @@ class Direction(Enum):
         if self == Direction.LEFT:
             return Direction.UP
 
+    def counterclockwise(self) -> 'Direction':
+        if self == Direction.UP:
+            return Direction.LEFT
+
+        if self == Direction.RIGHT:
+            return Direction.UP
+
+        if self == Direction.DOWN:
+            return Direction.RIGHT
+
+        if self == Direction.LEFT:
+            return Direction.DOWN
+
+    def clockwise(self) -> 'Direction':
+        return self.next()
+
+    def reverse(self) -> 'Direction':
+        return Direction.from_dx_dy(self.dx * -1, self.dy * -1)
+
 
 @dataclass
 class Point:
@@ -96,7 +115,7 @@ class Point:
     def __eq__(self, other):
         x, y = other
 
-        return self.x == x and self.y == other.y
+        return self.x == x and self.y == y
 
     def __mul__(self, factor: int) -> 'Point':
         return Point(self.x * factor, self.y * factor)
@@ -153,10 +172,10 @@ class Field:
     def __str__(self):
         lines = []
 
-        for y in range(-1, self.height):
+        for y in range(self.height):
             cells = []
 
-            for x in range(-1, self.width):
+            for x in range(self.width):
                 cell = str(self[x, y])
                 cells.append(cell)
 
@@ -195,6 +214,7 @@ def read_single_line() -> str:
 
 
 T = TypeVar("T")
+V = TypeVar("V")
 
 
 def first(seq: Iterable[T], criteria: Callable[[T], bool] = lambda: True) -> T | None:
@@ -208,3 +228,15 @@ def first(seq: Iterable[T], criteria: Callable[[T], bool] = lambda: True) -> T |
 def chunks(seq: List[T], n: int) -> Iterable[List[T]]:
     for i in range(0, len(seq), n):
         yield seq[i:i + n]
+
+
+def reverse_dict(d: Dict[T, V]) -> Dict[V, List[T]]:
+    result = {}
+
+    for key, value in d.items():
+        if value not in result:
+            result[value] = []
+
+        result[value].append(key)
+
+    return result
