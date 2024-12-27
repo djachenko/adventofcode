@@ -240,3 +240,17 @@ def reverse_dict(d: Dict[T, V]) -> Dict[V, List[T]]:
         result[value].append(key)
 
     return result
+
+
+def unique(s: Iterable[T]) -> List[T]:
+    cache = set()
+    unique_s = []
+
+    for e in s:
+        if e in cache:
+            continue
+
+        cache.add(e)
+        unique_s.append(e)
+
+    return unique_s
