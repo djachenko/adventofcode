@@ -304,6 +304,57 @@ def read_single_line() -> str:
         return input_file.read()
 
 
+class Input:
+    def __init__(self, file_name: str) -> None:
+        super().__init__()
+
+        self.__path = Path(file_name)
+
+    @property
+    @lru_cache()
+    def line(self) -> str:
+        with self.__path.open() as input_file:
+            return input_file.read()
+
+    @property
+    def lines(self) -> List[str]:
+        return self.line.split("\n")
+
+    @property
+    def blocks(self) -> List[List[str]]:
+        return [block.split("\n") for block in self.line.split("\n\n")]
+
+    def field(self) -> Field:
+        field_, start, end = self.field_se()
+
+        assert start is None
+        assert end is None
+
+        return field_
+
+    @lru_cache()
+    def field_se(self) -> (Field, Point | None, Point | None):
+        field_ = Field()
+        start = None
+        end = None
+
+        for y, line in enumerate(self.lines):
+            for x, cell in enumerate(line):
+                if cell == "S":
+                    start = Point(x, y)
+                    cell = Field.EMPTY
+
+                if cell == "E":
+                    end = Point(x, y)
+                    cell = Field.EMPTY
+
+                field_[x, y] = cell
+
+        return field_, start, end
+
+
+INPUT = Input("input.txt")
+
 T = TypeVar("T")
 V = TypeVar("V")
 
