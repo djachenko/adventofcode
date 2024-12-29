@@ -103,8 +103,29 @@ class Point:
     def neighbours(self) -> List['Point']:
         return [self + direction for direction in Direction]
 
-    def is_neighbour_of(self, other: 'Point') -> bool:
-        return other in self.neighbours
+    @lru_cache()
+    def n_neighbours(self, n: int) -> List['Point']:
+        result = []
+
+        for dx in range(-n, n + 1):
+            abs_dx = abs(dx)
+
+            for dy in range(-n + abs_dx, n - abs_dx + 1):
+                if dx == 0 and dy == 0:
+                    continue
+
+                result.append(Point(self.x + dx, self.y + dy))
+
+        return result
+
+    def is_neighbour_of(self, other: 'Point', distance: int = 1) -> bool:
+        if self == other:
+            return False
+
+        return self.manhattan_from(other) <= distance
+
+    def manhattan_from(self, other: 'Point') -> int:
+        return abs(self.x - other.x) + abs(self.y - other.y)
 
     def __repr__(self) -> str:
         return f"({self.x}, {self.y})"
@@ -135,6 +156,9 @@ Coordinate = Tuple[int, int] | Point
 
 
 class Field:
+    WALL = "#"
+    EMPTY = "."
+
     @property
     def height(self):
         if not self.__field:
@@ -198,6 +222,73 @@ class Field:
 
         return field
 
+    def flood_fill(self, start: Point) -> None:
+        queue = [(start, 0)]
+
+        while queue:
+            point, generation = queue.pop(0)
+
+            if point not in self:
+                continue
+
+            if self[point] == Field.WALL:
+                continue
+
+            if self[point] == Field.EMPTY:
+                self[point] = generation
+
+                queue += [(neighbour, generation + 1) for neighbour in point.neighbours]
+
+    def get_all_back_paths_cells(self, end: Point) -> List[Point]:
+        path = [end]
+
+        next_generation = path.copy()
+
+        while next_generation:
+            prev_generation = next_generation
+            next_generation = []
+
+            for point in prev_generation:
+                current_cell = self[point]
+
+                for neighbour in point.neighbours:
+                    neighbour_cell = self[neighbour]
+
+                    if neighbour_cell == Field.WALL:
+                        continue
+
+                    if neighbour_cell == current_cell - 1:
+                        next_generation.append(neighbour)
+
+            path += next_generation
+
+        return path
+
+    def get_back_path(self, end: Point) -> List[Point]:
+        path = [end]
+
+        while True:
+            current_point = path[-1]
+            current_cell = self[current_point]
+
+            if current_cell == 0:
+                break
+
+            for neighbour in current_point.neighbours:
+                neighbour_cell = self[neighbour]
+
+                if neighbour_cell == Field.WALL:
+                    continue
+
+                if neighbour_cell == current_cell - 1:
+                    path.append(neighbour)
+
+                    break
+
+            assert path[-1] != current_point
+
+        return path
+
 
 INPUT_FILE = Path("input.txt")
 
@@ -254,3 +345,7 @@ def unique(s: Iterable[T]) -> List[T]:
         unique_s.append(e)
 
     return unique_s
+
+
+def find(seq: List[T], predicate: Callable[[T], bool]) -> T | None:
+    return next(filter(predicate, seq), None)
