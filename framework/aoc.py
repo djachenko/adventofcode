@@ -3,9 +3,10 @@ import time
 from collections.abc import Callable
 from pathlib import Path
 
-from utils import WebInput, Input, first
+from utils.funcs import first
+from utils.inputs import Input, WebInput
 
-Output = str | None
+Output = str | int | None
 Task = Callable[[], Output]
 
 
