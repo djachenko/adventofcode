@@ -1,15 +1,18 @@
 import inspect
 import time
 from collections.abc import Callable
+from functools import lru_cache
 from pathlib import Path
 
-from utils import WebInput, Input, first
+from utils.funcs import first
+from utils.inputs import Input, WebInput
 
-Output = str | None
+Output = str | int | None
 Task = Callable[[], Output]
 
 
-def __build_input() -> Input:
+@lru_cache()
+def __determine_day_and_year() -> (int, int):
     stack = inspect.stack()
     filenames = [s.filename for s in stack]
 
@@ -21,6 +24,12 @@ def __build_input() -> Input:
 
     day = int(file_name)
     year = int(parent_name)
+
+    return day, year
+
+
+def __build_input() -> Input:
+    day, year = __determine_day_and_year()
 
     return WebInput(year, day)
 
@@ -44,6 +53,10 @@ def __run_and_measure(task: Task, title: str) -> None:
         print(f"{title} not solved.")
 
 
-def run(star1: Task, star2: Task):
+def run(star1: Task, star2: Task) -> None:
+    day, year = __determine_day_and_year()
+
+    print(f"{year}, day {day}:")
+
     __run_and_measure(star1, "First")
     __run_and_measure(star2, "Second")
