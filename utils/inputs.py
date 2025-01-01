@@ -4,7 +4,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import List
 
-from requests_cache import CachedSession
+from requests_cache import CachedSession, DEFAULT_CACHE_NAME
 
 from utils.structures import Field, Point
 
@@ -75,18 +75,12 @@ class FileInput(Input):
 
 
 class WebInput(Input):
-    @staticmethod
-    def __cookie() -> str:
-        return os.environ["AOC_COOKIE"]
-
     def __init__(self, year: int, day: int):
         self.__url = f"https://adventofcode.com/{year}/day/{day}/input"
 
     @property
     def line(self) -> str:
-        session = CachedSession()
-
-        response = session.get(self.__url, cookies={
+        response = WebInput.__session().get(self.__url, cookies={
             "session": WebInput.__cookie()
         })
 
@@ -94,3 +88,15 @@ class WebInput(Input):
         text = text.strip()
 
         return text
+
+    @staticmethod
+    def __cookie() -> str:
+        return os.environ["AOC_COOKIE"]
+
+    @staticmethod
+    def __session() -> CachedSession:
+        cache_name = Path.cwd().parent / DEFAULT_CACHE_NAME
+
+        session = CachedSession(cache_name=cache_name)
+
+        return session
