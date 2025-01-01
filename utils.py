@@ -1,10 +1,13 @@
+import os
+from abc import abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
-
 from math import log10
 from pathlib import Path
 from typing import Tuple, Iterable, List, TypeVar, Callable, Dict
+
+from requests_cache import CachedSession
 
 
 def split_int(a: int) -> (int, int):
@@ -88,6 +91,9 @@ class Direction(Enum):
     def reverse(self) -> 'Direction':
         return Direction.from_dx_dy(self.dx * -1, self.dy * -1)
 
+    def __mul__(self, factor: int) -> 'Point':
+        return Point(self.dx * factor, self.dy * factor)
+
 
 @dataclass
 class Point:
@@ -127,6 +133,9 @@ class Point:
     def manhattan_from(self, other: 'Point') -> int:
         return abs(self.x - other.x) + abs(self.y - other.y)
 
+    def manhattan(self) -> int:
+        return self.manhattan_from(Point.zero())
+
     def __repr__(self) -> str:
         return f"({self.x}, {self.y})"
 
@@ -148,10 +157,7 @@ class Point:
             return Point(self.x + other.dx, self.y + other.dy)
 
     def __sub__(self, other) -> 'Point':
-        if isinstance(other, Point):
-            return self + other * -1
-        elif isinstance(other, Direction):
-            return self + other.reverse()
+        return self + other * -1
 
     def __bool__(self) -> bool:
         return self != Point.zero()
@@ -322,16 +328,10 @@ def read_single_line() -> str:
 
 
 class Input:
-    def __init__(self, file_name: str) -> None:
-        super().__init__()
-
-        self.__path = Path(file_name)
-
     @property
-    @lru_cache()
+    @abstractmethod
     def line(self) -> str:
-        with self.__path.open() as input_file:
-            return input_file.read()
+        return ""
 
     @property
     def lines(self) -> List[str]:
@@ -370,7 +370,51 @@ class Input:
         return field_, start, end
 
 
-INPUT = Input("input.txt")
+class StringInput(Input):
+    def __init__(self, string: str):
+        self.__string = string
+
+    @property
+    def line(self) -> str:
+        return self.__string
+
+
+class FileInput(Input):
+    def __init__(self, file_name: str) -> None:
+        super().__init__()
+
+        self.__path = Path(file_name)
+
+    @property
+    @lru_cache()
+    def line(self) -> str:
+        with self.__path.open() as input_file:
+            return input_file.read()
+
+
+class WebInput(Input):
+    @staticmethod
+    def __cookie() -> str:
+        return os.environ["AOC_COOKIE"]
+
+    def __init__(self, year: int, day: int):
+        self.__url = f"https://adventofcode.com/{year}/day/{day}/input"
+
+    @property
+    def line(self) -> str:
+        session = CachedSession()
+
+        response = session.get(self.__url, cookies={
+            "session": WebInput.__cookie()
+        })
+
+        html = response.text
+        html = html.strip()
+
+        return html
+
+
+INPUT = FileInput("input.txt")
 
 T = TypeVar("T")
 V = TypeVar("V")
@@ -399,6 +443,24 @@ def reverse_dict(d: Dict[T, V]) -> Dict[V, List[T]]:
         result[value].append(key)
 
     return result
+
+
+def reverse_dict_single(d: Dict[T, V]) -> Dict[V, T]:
+    assert is_unique(d.values())
+
+    return {value: key for key, value in d.items()}
+
+
+def is_unique(s: Iterable[T]) -> bool:
+    cache = set()
+
+    for e in s:
+        if e in cache:
+            return False
+
+        cache.add(e)
+
+    return True
 
 
 def unique(s: Iterable[T]) -> List[T]:
