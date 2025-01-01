@@ -147,10 +147,27 @@ class Point:
         elif isinstance(other, Direction):
             return Point(self.x + other.dx, self.y + other.dy)
 
+    def __sub__(self, other) -> 'Point':
+        if isinstance(other, Point):
+            return self + other * -1
+        elif isinstance(other, Direction):
+            return self + other.reverse()
+
+    def __bool__(self) -> bool:
+        return self != Point.zero()
+
     @staticmethod
     def from_tuple(t: Tuple[int, int]) -> 'Point':
         return Point(t[0], t[1])
 
+    @staticmethod
+    @lru_cache()
+    def zero() -> 'Point':
+        return Point(0, 0)
+
+
+if __name__ == '__main__':
+    pass
 
 Coordinate = Tuple[int, int] | Point
 
