@@ -76,3 +76,39 @@ def unique(s: Iterable[T]) -> List[T]:
         unique_s.append(e)
 
     return unique_s
+
+
+def count_if(s: Iterable[T], predicate: Callable[[T], bool] = lambda x: bool(x)) -> int:
+    count = 0
+
+    for i in s:
+        if predicate(i):
+            count += 1
+
+    return count
+
+
+def mul(s: Iterable[int]) -> int:
+    result = 1
+
+    for e in s:
+        result *= e
+
+    return result
+
+
+def find_all(string: str, substring: str) -> List[int]:
+    start = 0
+    result = []
+
+    while True:
+        start = string.find(substring, start)
+
+        if start == -1:
+            break
+
+        result.append(start)
+
+        start += len(substring)
+
+    return result

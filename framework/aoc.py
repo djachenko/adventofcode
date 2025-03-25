@@ -5,7 +5,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from utils.funcs import first
-from utils.inputs import Input, WebInput
+from utils.inputs import WebInput, Input
 
 Output = str | int | None
 Task = Callable[[], Output]
@@ -44,10 +44,10 @@ def __run_and_measure(task: Task, title: str) -> None:
 
     end_time = time.time()
 
-    total_time = end_time - start_time
-    total_time = round(total_time, 5)
+    if result is not None:
+        total_time = end_time - start_time
+        total_time = round(total_time, 5)
 
-    if result:
         print(f"{title}: {result} in {total_time} s.")
     else:
         print(f"{title} not solved.")

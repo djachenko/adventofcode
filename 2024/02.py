@@ -1,5 +1,6 @@
-from pathlib import Path
 from typing import List
+
+from framework.aoc import *
 
 Report = List[int]
 
@@ -33,20 +34,41 @@ def __is_safe(report: Report) -> bool:
     return __is_valid(diffs) and (__is_increasing(diffs) or __is_decreasing(diffs))
 
 
-def main():
-    with Path("input.txt").open() as input_file:
-        reports = [[int(num) for num in line.split()] for line in input_file]
+REPORTS = [[int(num) for num in line.split()] for line in INPUT.lines]
 
+
+def star1() -> Output:
     count = 0
 
-    for report in reports:
+    for report in REPORTS:
         if __is_safe(report):
             count += 1
 
             continue
 
-    print(count)
+    return count
+
+
+def star2() -> Output:
+    count = 0
+
+    for report in REPORTS:
+        if __is_safe(report):
+            count += 1
+
+            continue
+
+        for i in range(len(report)):
+            modified_report = report.copy()
+            modified_report.pop(i)
+
+            if __is_safe(modified_report):
+                count += 1
+
+                break
+
+    return count
 
 
 if __name__ == '__main__':
-    main()
+    run(star1, star2)

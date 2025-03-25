@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
-from typing import List, Tuple, Iterable
+from typing import List, Tuple, Iterable, Self
 
 
 class Direction(Enum):
@@ -25,7 +25,7 @@ class Direction(Enum):
         return None
 
     @staticmethod
-    def from_dx_dy(dx: int, dy: int) -> 'Direction':
+    def from_dx_dy(dx: int, dy: int) -> Self:
         for d in Direction:
             if d.dx == dx and d.dy == dy:
                 return d
@@ -38,7 +38,7 @@ class Direction(Enum):
     def __str__(self) -> str:
         return self.__representation
 
-    def next(self) -> 'Direction':
+    def next(self) -> Self:
         if self == Direction.UP:
             return Direction.RIGHT
 
@@ -51,7 +51,7 @@ class Direction(Enum):
         if self == Direction.LEFT:
             return Direction.UP
 
-    def counterclockwise(self) -> 'Direction':
+    def counterclockwise(self) -> Self:
         if self == Direction.UP:
             return Direction.LEFT
 
@@ -64,10 +64,10 @@ class Direction(Enum):
         if self == Direction.LEFT:
             return Direction.DOWN
 
-    def clockwise(self) -> 'Direction':
+    def clockwise(self) -> Self:
         return self.next()
 
-    def reverse(self) -> 'Direction':
+    def reverse(self) -> Self:
         return Direction.from_dx_dy(self.dx * -1, self.dy * -1)
 
     def __mul__(self, factor: int) -> 'Point':

@@ -54,7 +54,7 @@ class Input:
 
 class StringInput(Input):
     def __init__(self, string: str):
-        self.__string = string
+        self.__string = string.strip()
 
     @property
     def line(self) -> str:
