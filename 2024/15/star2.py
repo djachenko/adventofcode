@@ -1,3 +1,5 @@
+from typing import Self
+
 from utils import read_by_line, Field, Point, Direction
 
 
@@ -8,7 +10,7 @@ class WideBox:
             Point(point.x + 1, point.y)
         ]
 
-    def __add__(self, other) -> 'WideBox':
+    def __add__(self, other) -> Self:
         return WideBox(self.points[0] + other)
 
     def __getitem__(self, point: Point):

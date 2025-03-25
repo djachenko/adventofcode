@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Self
 
 
 class Direction(Enum):
@@ -33,7 +33,7 @@ class Direction(Enum):
     def __str__(self) -> str:
         return self.__representation
 
-    def next(self) -> 'Direction':
+    def next(self) -> Self:
         if self == Direction.UP:
             return Direction.RIGHT
 

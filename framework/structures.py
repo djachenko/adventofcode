@@ -24,8 +24,8 @@ class Direction(Enum):
 
         return None
 
-    @staticmethod
-    def from_dx_dy(dx: int, dy: int) -> Self:
+    @classmethod
+    def from_dx_dy(cls, dx: int, dy: int) -> Self:
         for d in Direction:
             if d.dx == dx and d.dy == dy:
                 return d
@@ -70,7 +70,7 @@ class Direction(Enum):
     def reverse(self) -> Self:
         return Direction.from_dx_dy(self.dx * -1, self.dy * -1)
 
-    def __mul__(self, factor: int) -> 'Point':
+    def __mul__(self, factor: int) -> Self:
         return Point(self.dx * factor, self.dy * factor)
 
 
@@ -85,11 +85,11 @@ class Point:
 
     @property
     @lru_cache()
-    def neighbours(self) -> List['Point']:
+    def neighbours(self) -> List[Self]:
         return [self + direction for direction in Direction]
 
     @lru_cache()
-    def n_neighbours(self, n: int) -> List['Point']:
+    def n_neighbours(self, n: int) -> List[Self]:
         result = []
 
         for dx in range(-n, n + 1):
@@ -103,13 +103,13 @@ class Point:
 
         return result
 
-    def is_neighbour_of(self, other: 'Point', distance: int = 1) -> bool:
+    def is_neighbour_of(self, other: Self, distance: int = 1) -> bool:
         if self == other:
             return False
 
         return self.manhattan_from(other) <= distance
 
-    def manhattan_from(self, other: 'Point') -> int:
+    def manhattan_from(self, other: Self) -> int:
         return abs(self.x - other.x) + abs(self.y - other.y)
 
     def manhattan(self) -> int:
@@ -126,28 +126,28 @@ class Point:
 
         return self.x == x and self.y == y
 
-    def __mul__(self, factor: int) -> 'Point':
+    def __mul__(self, factor: int) -> Self:
         return Point(self.x * factor, self.y * factor)
 
-    def __add__(self, other) -> 'Point':
+    def __add__(self, other) -> Self:
         if isinstance(other, Point):
             return Point(self.x + other.x, self.y + other.y)
         elif isinstance(other, Direction):
             return Point(self.x + other.dx, self.y + other.dy)
 
-    def __sub__(self, other) -> 'Point':
+    def __sub__(self, other) -> Self:
         return self + other * -1
 
     def __bool__(self) -> bool:
         return self != Point.zero()
 
-    @staticmethod
-    def from_tuple(t: Tuple[int, int]) -> 'Point':
+    @classmethod
+    def from_tuple(cls, t: Tuple[int, int]) -> Self:
         return Point(t[0], t[1])
 
-    @staticmethod
+    @classmethod
     @lru_cache()
-    def zero() -> 'Point':
+    def zero(cls) -> Self:
         return Point(0, 0)
 
 
@@ -209,8 +209,8 @@ class Field:
 
         return result
 
-    @staticmethod
-    def read(stream: Iterable[str], default_factory=lambda: None, converter=lambda x: x) -> 'Field':
+    @classmethod
+    def read(cls, stream: Iterable[str], default_factory=lambda: None, converter=lambda x: x) -> Self:
         field = Field(default_factory)
 
         for y, line in enumerate(stream):

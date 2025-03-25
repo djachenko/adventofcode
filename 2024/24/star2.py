@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Self
 
 from utils import read_by_line, find
 
@@ -11,7 +12,7 @@ class Gate:
     out: str
 
     @staticmethod
-    def from_string(string: str) -> 'Gate':
+    def from_string(string: str) -> Self:
         left, type_, right, _, out = string.split()
 
         if left.startswith("y"):

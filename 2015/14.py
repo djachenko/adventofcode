@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Self
 
 from framework.aoc import *
 from utils.funcs import reverse_dict
@@ -11,8 +12,8 @@ class Deer:
     fly_time: int
     rest_time: int
 
-    @staticmethod
-    def parse(line: str) -> 'Deer':
+    @classmethod
+    def parse(cls, line: str) -> Self:
         words = line.split()
 
         name = words[0]

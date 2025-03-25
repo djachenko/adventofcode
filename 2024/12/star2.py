@@ -1,7 +1,8 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Self
 
-from utils import read_by_line, Field, Point, first, Direction
+from utils.funcs import first
+from utils.structures import Field, Point, Direction
 
 EMPTY = " "
 
@@ -52,7 +53,7 @@ class Fence:
         return self.point.y
 
     @property
-    def neighbours(self) -> List['Fence']:
+    def neighbours(self) -> List[Self]:
         if self.direction.dx == 0:
             return [
                 Fence(Point(self.point.x - 1, self.point.y), self.direction),
